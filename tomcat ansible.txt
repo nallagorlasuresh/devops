@@ -1,0 +1,38 @@
+---
+- name: Install Apache Tomcat
+  hosts: tomcat
+  become: yes
+  tasks:
+    - name: Download Tomcat
+      get_url:
+        url: http://ftp.unicamp.br/pub/apache/tomcat/tomcat-9/v9.0.45/bin/apache-tomcat-9.0.45.tar.gz
+        dest: /tmp/apache-tomcat-9.0.45.tar.gz
+
+    - name: Extract Tomcat
+      unarchive:
+        src: /tmp/apache-tomcat-9.0.45.tar.gz
+        dest: /opt/
+        
+
+    - name: Remove Tomcat archive
+      file:
+        state: absent
+        path: /tmp/apache-tomcat-9.0.45.tar.gz
+
+    - name: Create a symlink for Tomcat
+      file:
+        src: /opt/apache-tomcat-9.0.45
+        dest: /opt/tomcat
+        state: link
+
+    - name: Set ownership for Tomcat
+      file:
+        path: /opt/tomcat
+        owner: tomcat
+        group: tomcat
+        state: directory
+
+    - name: Start Tomcat
+      shell: /opt/tomcat/bin/startup.sh
+      args:
+        chdir: /opt/tomcat/bin/
